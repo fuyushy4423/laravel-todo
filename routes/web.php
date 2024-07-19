@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TodoController;
+// todo applicationのルーティング設定
 Route::prefix('/todos')->controller(TodoController::class)->group(function () {
   // GET:/todos
   Route::get('/', 'index');
