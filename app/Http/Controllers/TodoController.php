@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TodoController extends Controller {
 
   public function index() {
-    return "Access into GET:/todos";
+    $todos = DB::table('todos')->get();
+    return view('todos.index', ['todos' => $todos]);
   }
 
   public function store(Request $req) {
@@ -21,11 +22,11 @@ class TodoController extends Controller {
         'deadline' => '期限は24時間表記で分まで指定してください'
       ]
     );
-    $postData = 'Post data ';
-    $postData .= "taskname -> {$req->input('taskname')}, ";
-    $postData .= "taskdetail -> {$req->input('taskdetail')}, ";
-    $postData .= "deadline -> {$req->input('deadline')}";
-    return "Access into POST:/todos. $postData";
+    DB::table('todos')->insert([
+      'taskname' => $req->input('taskname'),
+      'deadline' => $req->input('deadline')
+    ]);
+    return redirect('/todos');
   }
 
   public function create() {
