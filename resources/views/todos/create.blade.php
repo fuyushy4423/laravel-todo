@@ -37,10 +37,10 @@
 
             <div class="col-span-full">
               <label for="taskdetail" class="block text-sm font-medium leading-6 text-gray-900">タスク詳細</label>
-              <div class="mt-2">
-                <textarea id="taskdetail" name="taskdetail" rows="3"
+                <div class="mt-2">
+                  <textarea id="taskdetail" name="taskdetail" rows="3"
                   class="block w-full rounded-md border-0 py-1.5 px-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
-              </div>
+                </div>
               <p class="mt-3 text-sm leading-6 text-gray-600">タスクの詳細があれば記入してください</p>
             </div>
 
@@ -63,3 +63,17 @@
     </form>
   </div>
 </x-layouts.body>
+
+@if ($errors->any())
+    <div class="flex p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
+        <span class="sr-only">バリデーションエラー</span>
+        <div>
+            <span class="font-medium">入力値に誤りがあります</span>
+            <ul class="mt-1.5 list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif

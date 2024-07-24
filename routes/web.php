@@ -4,9 +4,9 @@ use App\Http\Controllers\TodoController;
 // todo applicationのルーティング設定
 Route::prefix('/todos')->controller(TodoController::class)->group(function () {
   // GET:/todos
-  Route::get('/', 'index');
+  Route::get('/', 'index')->name('todos.index');
 
-  // POST:/todo/
+  // POST:/todos
   Route::post('/', 'store');
 
   // GET:/todos/create
@@ -14,9 +14,12 @@ Route::prefix('/todos')->controller(TodoController::class)->group(function () {
 
   Route::prefix('/{todoId}')->group(function () {
     // GET:/todos/{todoId}
-    Route::get('/', 'show');
+    Route::get('/', 'show')->name('todos.show');
+    // DELETE:/todos/{todoId}
+    Route::delete('/', 'destroy')->name('todos.destroy');
   });
 });
+
 
 use App\Http\Middleware\AccessLog;
 

@@ -2,40 +2,91 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request; // 追加
 use Illuminate\Support\Facades\DB;
 
-class TodoController extends Controller {
+class TodoController extends Controller
+{
+    public function index()
+    {
+        $todos = DB::table('todos')->get();
+        return view('todos.index', ['todos' => $todos]);
+    }
 
-  public function index() {
-    $todos = DB::table('todos')->get();
-    return view('todos.index', ['todos' => $todos]);
-  }
+    public function store(Request $request)
+    {
+        // バリデーションルールの設定
+        $validated = $request->validate([
+            'taskname' => 'required|string|max:255',
+            'taskdetail' => 'nullable|string',
+            'deadline' => 'nullable|date_format:H:i',
+        ], [
+            'taskname.required' => 'タスク名は必須です',
+            'taskname.max' => 'タスク名は255文字以内で入力してください',
+            'deadline.date_format' => '期限は24時間形式で入力してください'
+        ]);
 
-  public function store(Request $req) {
-    $req->validate(
-      [
-        'taskname' => 'required | max:255',
-        'deadline' => ['nullable', 'date_format:H:i']
-      ],
-      [
-        'taskname' => 'タスク名は255文字以内で必須入力です',
-        'deadline' => '期限は24時間表記で分まで指定してください'
-      ]
-    );
-    DB::table('todos')->insert([
-      'taskname' => $req->input('taskname'),
-      'deadline' => $req->input('deadline')
-    ]);
-    return redirect('/todos');
-  }
+        // バリデーションが成功した場合、データベースに挿入
+        DB::table('todos')->insert([
+            'taskname' => $request->input('taskname'),
+            'taskdetail' => $request->input('taskdetail'), // 追加
+            'deadline' => $request->input('deadline')
+        ]);
 
-  public function create() {
-    return view('todos.create');
-  }
+        // 成功したら、タスク一覧ページにリダイレクト
+        return redirect('/todos')->with('status', 'タスクが追加されました。');
+    }
 
-  public function show(string $tId) {
-    return "Dynamic routing access into GET:/todos/{$tId}";
-  }
+    public function create()
+    {
+        return view('todos.create');
+    }
 
-  
+    public function show($id)
+    {
+        // タスクをIDで取得
+        $todo = DB::table('todos')->find($id);
+
+        // タスクが存在しない場合は404エラーページにリダイレクト
+        if (!$todo) {
+            abort(404, 'タスクが見つかりません');
+        }
+
+        // 詳細ビューにタスク情報を渡す
+        return view('todos.show', ['todo' => $todo]);
+    }
+
+    public function edit($id)
+    {
+        $todo = DB::table('todos')->find($id);
+        return view('todos.edit', ['todo' => $todo]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        // バリデーションルールの設定
+        $validated = $request->validate([
+            'taskname' => 'required|string|max:255',
+            'taskdetail' => 'nullable|string',
+            'deadline' => 'nullable|date_format:H:i',
+        ], [
+            'taskname.required' => 'タスク名は必須です',
+            'taskname.max' => 'タスク名は255文字以内で入力してください',
+            'deadline.date_format' => '期限は24時間形式で入力してください'
+        ]);
+
+        // バリデーションが成功した場合、データベースのレコードを更新
+        DB::table('todos')->where('id', $id)->update($validated);
+
+        // 成功したら、タスク一覧ページにリダイレクト
+        return redirect()->route('todos.index')->with('status', 'タスクが更新されました。');
+    }
+
+    public function destroy($id)
+    {
+        DB::table('todos')->where('id', $id)->delete();
+
+        // 成功したら、タスク一覧ページにリダイレクト
+        return redirect()->route('todos.index')->with('status', 'タスクが削除されました。');
+    }
 }
